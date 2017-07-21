@@ -37,7 +37,7 @@ type YamlMap struct {
 	m      Map
 }
 
-// NewMap creates new map and return its pointer
+// NewYamlMap creates new map and return its pointer
 func NewYamlMap() *YamlMap {
 	return &YamlMap{
 		m: make(Map),
