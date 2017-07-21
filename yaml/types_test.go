@@ -28,10 +28,12 @@ var stringTests = []struct {
 `,
 	},
 	{
-		Tree: List{
-			Scalar("One"),
-			Scalar("Two"),
-			Scalar("Three"),
+		Tree: &YamlList{
+			list: List{
+				Scalar("One"),
+				Scalar("Two"),
+				Scalar("Three"),
+			},
 		},
 		Expect: `- One
 - Two
@@ -43,10 +45,12 @@ var stringTests = []struct {
 			m: Map{
 				"phonetic":     Scalar("true"),
 				"organization": Scalar("Navy"),
-				"alphabet": List{
-					Scalar("Alpha"),
-					Scalar("Bravo"),
-					Scalar("Charlie"),
+				"alphabet": &YamlList{
+					list: List{
+						Scalar("Alpha"),
+						Scalar("Bravo"),
+						Scalar("Charlie"),
+					},
 				},
 			},
 		},
@@ -62,9 +66,11 @@ alphabet:
 		Tree: &YamlMap{
 			m: Map{
 				"answer": Scalar("42"),
-				"question": List{
-					Scalar("What do you get when you multiply six by nine?"),
-					Scalar("How many roads must a man walk down?"),
+				"question": &YamlList{
+					list: List{
+						Scalar("What do you get when you multiply six by nine?"),
+						Scalar("How many roads must a man walk down?"),
+					},
 				},
 			},
 		},
@@ -75,17 +81,19 @@ question:
 `,
 	},
 	{
-		Tree: List{
-			&YamlMap{
-				m: Map{
-					"name": Scalar("John Smith"),
-					"age":  Scalar("42"),
+		Tree: &YamlList{
+			list: List{
+				&YamlMap{
+					m: Map{
+						"name": Scalar("John Smith"),
+						"age":  Scalar("42"),
+					},
 				},
-			},
-			&YamlMap{
-				m: Map{
-					"name": Scalar("Jane Smith"),
-					"age":  Scalar("45"),
+				&YamlMap{
+					m: Map{
+						"name": Scalar("Jane Smith"),
+						"age":  Scalar("45"),
+					},
 				},
 			},
 		},
@@ -96,10 +104,12 @@ question:
 `,
 	},
 	{
-		Tree: List{
-			List{Scalar("one"), Scalar("two"), Scalar("three")},
-			List{Scalar("un"), Scalar("deux"), Scalar("trois")},
-			List{Scalar("ichi"), Scalar("ni"), Scalar("san")},
+		Tree: &YamlList{
+			list: List{
+				&YamlList{list: List{Scalar("one"), Scalar("two"), Scalar("three")}},
+				&YamlList{list: List{Scalar("un"), Scalar("deux"), Scalar("trois")}},
+				&YamlList{list: List{Scalar("ichi"), Scalar("ni"), Scalar("san")}},
+			},
 		},
 		Expect: `- - one
   - two

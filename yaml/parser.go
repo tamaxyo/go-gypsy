@@ -214,26 +214,31 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 				current = mapNode
 
 			case typSequence:
-				var listNode List
+				var listNode *YamlList
 				var ok bool
 				var child Node
 
 				// Get the current list, if there is one
-				if listNode, ok = current.(List); current != nil && !ok {
-					_ = current.(List) // panic
+				if listNode, ok = current.(*YamlList); current != nil && !ok {
+					_ = current.(*YamlList) // panic
 				} else if current == nil {
-					listNode = make(List, 0)
+					listNode = NewYamlList()
+					listNode.SetLineNo(lineno)
+					listNode.SetLine(_line)
 				}
 
 				if _, inlineList := prev.(Scalar); inlineList && last > 0 {
-					current = List{
-						prev,
+					current = &YamlList{
+						list:   List{prev},
+						lineno: lineno,
+						line:   _line,
 					}
+
 					break
 				}
 
 				child = parseNode(r, line.indent+1, prev)
-				listNode = append(listNode, child)
+				listNode.list = append(listNode.list, child)
 				current = listNode
 
 			}

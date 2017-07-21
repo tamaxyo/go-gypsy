@@ -147,7 +147,7 @@ func (f *File) Count(spec string) (int, error) {
 		}
 	}
 
-	lst, ok := node.(List)
+	lst, ok := node.(*YamlList)
 	if !ok {
 		return -1, &NodeTypeMismatch{
 			Full:     spec,
@@ -215,7 +215,7 @@ func Child(root Node, spec string) (Node, error) {
 
 		switch s[0] {
 		case '[':
-			s, ok := n.(List)
+			s, ok := n.(*YamlList)
 			if !ok {
 				return nil, &NodeTypeMismatch{
 					Node:     n,
@@ -228,8 +228,8 @@ func Child(root Node, spec string) (Node, error) {
 
 			if tok[0] == '[' && tok[len(tok)-1] == ']' {
 				if num, err := strconv.Atoi(tok[1 : len(tok)-1]); err == nil {
-					if num >= 0 && num < len(s) {
-						return recur(s[num], last+tok, remain)
+					if num >= 0 && num < s.Len() {
+						return recur(s.Item(num), last+tok, remain)
 					}
 				}
 			}

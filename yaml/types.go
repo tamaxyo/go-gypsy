@@ -64,6 +64,11 @@ func (node *YamlMap) Line() string {
 	return node.line
 }
 
+// SetLine sets line
+func (node *YamlMap) SetLine(line string) {
+	node.line = line
+}
+
 func (node *YamlMap) write(out io.Writer, firstind, nextind int) {
 	indent := bytes.Repeat([]byte{' '}, nextind)
 	ind := firstind
@@ -105,24 +110,58 @@ func (node *YamlMap) write(out io.Writer, firstind, nextind int) {
 // A List is a YAML Sequence of Nodes.
 type List []Node
 
+// A YamlList is a wrapper of YAML Sequence which holds both definition and value of Yaml Sequence
+type YamlList struct {
+	lineno int
+	line   string
+	list   List
+}
+
+// NewYamlList creates new list and return its pointer
+func NewYamlList() *YamlList {
+	return &YamlList{
+		list: make(List, 0),
+	}
+}
+
 // Get the number of items in the List.
-func (node List) Len() int {
-	return len(node)
+func (node *YamlList) Len() int {
+	return len(node.list)
+}
+
+// LineNo returns line number of map definition
+func (node *YamlList) LineNo() int {
+	return node.lineno
+}
+
+// SetLineNo sets line number
+func (node *YamlList) SetLineNo(lineno int) {
+	node.lineno = lineno
+}
+
+// Line returns raw line written in yaml file
+func (node *YamlList) Line() string {
+	return node.line
+}
+
+// SetLine sets line
+func (node *YamlList) SetLine(line string) {
+	node.line = line
 }
 
 // Get the idx'th item from the List.
-func (node List) Item(idx int) Node {
-	if idx >= 0 && idx < len(node) {
-		return node[idx]
+func (node *YamlList) Item(idx int) Node {
+	if idx >= 0 && idx < node.Len() {
+		return node.list[idx]
 	}
 	return nil
 }
 
-func (node List) write(out io.Writer, firstind, nextind int) {
+func (node *YamlList) write(out io.Writer, firstind, nextind int) {
 	indent := bytes.Repeat([]byte{' '}, nextind)
 	ind := firstind
 
-	for _, value := range node {
+	for _, value := range node.list {
 		out.Write(indent[:ind])
 		fmt.Fprint(out, "- ")
 		ind = nextind
