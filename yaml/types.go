@@ -30,19 +30,48 @@ type Node interface {
 // A Map is a YAML Mapping which maps Strings to Nodes.
 type Map map[string]Node
 
-// Key returns the value associeted with the key in the map.
-func (node Map) Key(key string) Node {
-	return node[key]
+// A YamlMap is a YAML Mapping wrapper which holds both definition and value of YAML Mapping
+type YamlMap struct {
+	lineno int
+	line   string
+	m      Map
 }
 
-func (node Map) write(out io.Writer, firstind, nextind int) {
+// NewMap creates new map and return its pointer
+func NewYamlMap() *YamlMap {
+	return &YamlMap{
+		m: make(Map),
+	}
+}
+
+// Key returns the value associeted with the key in the map.
+func (node *YamlMap) Key(key string) Node {
+	return node.m[key]
+}
+
+// LineNo returns line number of map definition
+func (node *YamlMap) LineNo() int {
+	return node.lineno
+}
+
+// SetLineNo sets line number
+func (node *YamlMap) SetLineNo(lineno int) {
+	node.lineno = lineno
+}
+
+// Line returns raw line written in yaml file
+func (node *YamlMap) Line() string {
+	return node.line
+}
+
+func (node *YamlMap) write(out io.Writer, firstind, nextind int) {
 	indent := bytes.Repeat([]byte{' '}, nextind)
 	ind := firstind
 
 	width := 0
 	scalarkeys := []string{}
 	objectkeys := []string{}
-	for key, value := range node {
+	for key, value := range node.m {
 		if _, ok := value.(Scalar); ok {
 			if swid := len(key); swid > width {
 				width = swid
@@ -56,20 +85,20 @@ func (node Map) write(out io.Writer, firstind, nextind int) {
 	sort.Strings(objectkeys)
 
 	for _, key := range scalarkeys {
-		value := node[key].(Scalar)
+		value := node.m[key].(Scalar)
 		out.Write(indent[:ind])
 		fmt.Fprintf(out, "%-*s %s\n", width+1, key+":", string(value))
 		ind = nextind
 	}
 	for _, key := range objectkeys {
 		out.Write(indent[:ind])
-		if node[key] == nil {
+		if node.m[key] == nil {
 			fmt.Fprintf(out, "%s: <nil>\n", key)
 			continue
 		}
 		fmt.Fprintf(out, "%s:\n", key)
 		ind = nextind
-		node[key].write(out, ind+2, ind+2)
+		node.m[key].write(out, ind+2, ind+2)
 	}
 }
 

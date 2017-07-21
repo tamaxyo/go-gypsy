@@ -39,13 +39,15 @@ var stringTests = []struct {
 `,
 	},
 	{
-		Tree: Map{
-			"phonetic":     Scalar("true"),
-			"organization": Scalar("Navy"),
-			"alphabet": List{
-				Scalar("Alpha"),
-				Scalar("Bravo"),
-				Scalar("Charlie"),
+		Tree: &YamlMap{
+			m: Map{
+				"phonetic":     Scalar("true"),
+				"organization": Scalar("Navy"),
+				"alphabet": List{
+					Scalar("Alpha"),
+					Scalar("Bravo"),
+					Scalar("Charlie"),
+				},
 			},
 		},
 		Expect: `organization: Navy
@@ -57,11 +59,13 @@ alphabet:
 `,
 	},
 	{
-		Tree: Map{
-			"answer": Scalar("42"),
-			"question": List{
-				Scalar("What do you get when you multiply six by nine?"),
-				Scalar("How many roads must a man walk down?"),
+		Tree: &YamlMap{
+			m: Map{
+				"answer": Scalar("42"),
+				"question": List{
+					Scalar("What do you get when you multiply six by nine?"),
+					Scalar("How many roads must a man walk down?"),
+				},
 			},
 		},
 		Expect: `answer: 42
@@ -72,13 +76,17 @@ question:
 	},
 	{
 		Tree: List{
-			Map{
-				"name": Scalar("John Smith"),
-				"age":  Scalar("42"),
+			&YamlMap{
+				m: Map{
+					"name": Scalar("John Smith"),
+					"age":  Scalar("42"),
+				},
 			},
-			Map{
-				"name": Scalar("Jane Smith"),
-				"age":  Scalar("45"),
+			&YamlMap{
+				m: Map{
+					"name": Scalar("Jane Smith"),
+					"age":  Scalar("45"),
+				},
 			},
 		},
 		Expect: `- age:  42
@@ -105,9 +113,11 @@ question:
 `,
 	},
 	{
-		Tree: Map{
-			"yahoo":  Map{"url": Scalar("http://yahoo.com/"), "company": Scalar("Yahoo! Inc.")},
-			"google": Map{"url": Scalar("http://google.com/"), "company": Scalar("Google, Inc.")},
+		Tree: &YamlMap{
+			m: Map{
+				"yahoo":  &YamlMap{m: Map{"url": Scalar("http://yahoo.com/"), "company": Scalar("Yahoo! Inc.")}},
+				"google": &YamlMap{m: Map{"url": Scalar("http://google.com/"), "company": Scalar("Google, Inc.")}},
+			},
 		},
 		Expect: `google:
   company: Google, Inc.

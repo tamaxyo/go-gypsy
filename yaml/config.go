@@ -238,7 +238,7 @@ func Child(root Node, spec string) (Node, error) {
 				Spec: last + tok,
 			}
 		default:
-			m, ok := n.(Map)
+			m, ok := n.(*YamlMap)
 			if !ok {
 				return nil, &NodeTypeMismatch{
 					Node:     n,
@@ -249,7 +249,7 @@ func Child(root Node, spec string) (Node, error) {
 				}
 			}
 
-			n, ok = m[tok[1:]]
+			n, ok = m.m[tok[1:]]
 			if !ok {
 				return nil, &NodeNotFound{
 					Full: spec,

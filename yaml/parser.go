@@ -97,9 +97,11 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 
 		types := []int{}
 		pieces := []string{}
+		linenos := []int{}
+		lines := []string{}
 
-		var inlineValue func([]byte)
-		inlineValue = func(partial []byte) {
+		var inlineValue func([]byte, int)
+		inlineValue = func(partial []byte, lineno int) {
 			// TODO(kevlar): This can be a for loop now
 			vtyp, brk := getType(partial)
 			begin, end := partial[:brk], partial[brk:]
@@ -113,10 +115,14 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 			case typScalar:
 				types = append(types, typScalar)
 				pieces = append(pieces, string(end))
+				linenos = append(linenos, lineno)
+				lines = append(lines, string(partial))
 				return
 			case typMapping:
 				types = append(types, typMapping)
 				pieces = append(pieces, strings.TrimSpace(string(begin)))
+				linenos = append(linenos, lineno)
+				lines = append(lines, string(partial))
 
 				trimmed := bytes.TrimSpace(end)
 				if len(trimmed) == 1 && trimmed[0] == '|' {
@@ -134,27 +140,32 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 							break
 						}
 						text = text + "\n" + s
+						lineno++
 					}
 
 					types = append(types, typScalar)
 					pieces = append(pieces, string(text))
+					linenos = append(linenos, lineno)
+					lines = append(lines, string(text))
 					return
 				}
-				inlineValue(end)
+				inlineValue(end, lineno)
 			case typSequence:
 				types = append(types, typSequence)
 				pieces = append(pieces, "-")
-				inlineValue(end)
+				linenos = append(linenos, lineno)
+				lines = append(lines, string(partial))
+				inlineValue(end, lineno)
 			}
 		}
 
-		inlineValue(line.line)
+		inlineValue(line.line, line.lineno)
 		var prev Node
 
 		// Nest inlines
 		for len(types) > 0 {
 			last := len(types) - 1
-			typ, piece := types[last], pieces[last]
+			typ, piece, lineno, _line := types[last], pieces[last], linenos[last], lines[last]
 
 			var current Node
 			if last == 0 {
@@ -174,26 +185,32 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 				}
 				current = Scalar(piece)
 			case typMapping:
-				var mapNode Map
+				var mapNode *YamlMap
 				var ok bool
 				var child Node
 
 				// Get the current map, if there is one
-				if mapNode, ok = current.(Map); current != nil && !ok {
-					_ = current.(Map) // panic
+				if mapNode, ok = current.(*YamlMap); current != nil && !ok {
+					_ = current.(*YamlMap) // panic
 				} else if current == nil {
-					mapNode = make(Map)
+					mapNode = NewYamlMap()
+					mapNode.SetLineNo(lineno)
+					mapNode.SetLine(_line)
 				}
 
 				if _, inlineMap := prev.(Scalar); inlineMap && last > 0 {
-					current = Map{
-						piece: prev,
+					current = &YamlMap{
+						m: Map{
+							piece: prev,
+						},
+						lineno: lineno,
+						line:   _line,
 					}
 					break
 				}
 
 				child = parseNode(r, line.indent+1, prev)
-				mapNode[piece] = child
+				mapNode.m[piece] = child
 				current = mapNode
 
 			case typSequence:

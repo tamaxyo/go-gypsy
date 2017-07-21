@@ -223,8 +223,8 @@ func Test_MultiLineString(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		m := node.(Map)
-		v := m["a"].(Scalar)
+		m := node.(*YamlMap)
+		v := m.m["a"].(Scalar)
 		v2 := strings.TrimSpace(string(v))
 		if v2 != "a\nb" {
 			t.Errorf("multi line parsed wrong thing: %v", v)
