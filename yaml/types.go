@@ -64,6 +64,11 @@ func (node *YamlMap) Line() string {
 	return node.line
 }
 
+// Map returns YAML Mapping
+func (node *YamlMap) Map() Map {
+	return node.m
+}
+
 // SetLine sets line
 func (node *YamlMap) SetLine(line string) {
 	node.line = line
@@ -155,6 +160,11 @@ func (node *YamlList) Item(idx int) Node {
 		return node.list[idx]
 	}
 	return nil
+}
+
+// List returns YAML Sequence
+func (node *YamlList) List() List {
+	return node.list
 }
 
 func (node *YamlList) write(out io.Writer, firstind, nextind int) {
