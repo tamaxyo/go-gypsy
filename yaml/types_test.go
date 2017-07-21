@@ -23,16 +23,16 @@ var stringTests = []struct {
 	Expect string
 }{
 	{
-		Tree: Scalar("test"),
+		Tree: &YamlScalar{scalar: Scalar("test")},
 		Expect: `test
 `,
 	},
 	{
 		Tree: &YamlList{
 			list: List{
-				Scalar("One"),
-				Scalar("Two"),
-				Scalar("Three"),
+				&YamlScalar{scalar: Scalar("One")},
+				&YamlScalar{scalar: Scalar("Two")},
+				&YamlScalar{scalar: Scalar("Three")},
 			},
 		},
 		Expect: `- One
@@ -43,13 +43,13 @@ var stringTests = []struct {
 	{
 		Tree: &YamlMap{
 			m: Map{
-				"phonetic":     Scalar("true"),
-				"organization": Scalar("Navy"),
+				"phonetic":     &YamlScalar{scalar: Scalar("true")},
+				"organization": &YamlScalar{scalar: Scalar("Navy")},
 				"alphabet": &YamlList{
 					list: List{
-						Scalar("Alpha"),
-						Scalar("Bravo"),
-						Scalar("Charlie"),
+						&YamlScalar{scalar: Scalar("Alpha")},
+						&YamlScalar{scalar: Scalar("Bravo")},
+						&YamlScalar{scalar: Scalar("Charlie")},
 					},
 				},
 			},
@@ -65,11 +65,11 @@ alphabet:
 	{
 		Tree: &YamlMap{
 			m: Map{
-				"answer": Scalar("42"),
+				"answer": &YamlScalar{scalar: Scalar("42")},
 				"question": &YamlList{
 					list: List{
-						Scalar("What do you get when you multiply six by nine?"),
-						Scalar("How many roads must a man walk down?"),
+						&YamlScalar{scalar: Scalar("What do you get when you multiply six by nine?")},
+						&YamlScalar{scalar: Scalar("How many roads must a man walk down?")},
 					},
 				},
 			},
@@ -85,14 +85,14 @@ question:
 			list: List{
 				&YamlMap{
 					m: Map{
-						"name": Scalar("John Smith"),
-						"age":  Scalar("42"),
+						"name": &YamlScalar{scalar: Scalar("John Smith")},
+						"age":  &YamlScalar{scalar: Scalar("42")},
 					},
 				},
 				&YamlMap{
 					m: Map{
-						"name": Scalar("Jane Smith"),
-						"age":  Scalar("45"),
+						"name": &YamlScalar{scalar: Scalar("Jane Smith")},
+						"age":  &YamlScalar{scalar: Scalar("45")},
 					},
 				},
 			},
@@ -106,9 +106,9 @@ question:
 	{
 		Tree: &YamlList{
 			list: List{
-				&YamlList{list: List{Scalar("one"), Scalar("two"), Scalar("three")}},
-				&YamlList{list: List{Scalar("un"), Scalar("deux"), Scalar("trois")}},
-				&YamlList{list: List{Scalar("ichi"), Scalar("ni"), Scalar("san")}},
+				&YamlList{list: List{&YamlScalar{scalar: Scalar("one")}, &YamlScalar{scalar: Scalar("two")}, &YamlScalar{scalar: Scalar("three")}}},
+				&YamlList{list: List{&YamlScalar{scalar: Scalar("un")}, &YamlScalar{scalar: Scalar("deux")}, &YamlScalar{scalar: Scalar("trois")}}},
+				&YamlList{list: List{&YamlScalar{scalar: Scalar("ichi")}, &YamlScalar{scalar: Scalar("ni")}, &YamlScalar{scalar: Scalar("san")}}},
 			},
 		},
 		Expect: `- - one
@@ -125,8 +125,8 @@ question:
 	{
 		Tree: &YamlMap{
 			m: Map{
-				"yahoo":  &YamlMap{m: Map{"url": Scalar("http://yahoo.com/"), "company": Scalar("Yahoo! Inc.")}},
-				"google": &YamlMap{m: Map{"url": Scalar("http://google.com/"), "company": Scalar("Google, Inc.")}},
+				"yahoo":  &YamlMap{m: Map{"url": &YamlScalar{scalar: Scalar("http://yahoo.com/")}, "company": &YamlScalar{scalar: Scalar("Yahoo! Inc.")}}},
+				"google": &YamlMap{m: Map{"url": &YamlScalar{scalar: Scalar("http://google.com/")}, "company": &YamlScalar{scalar: Scalar("Google, Inc.")}}},
 			},
 		},
 		Expect: `google:

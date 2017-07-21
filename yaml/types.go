@@ -77,7 +77,7 @@ func (node *YamlMap) write(out io.Writer, firstind, nextind int) {
 	scalarkeys := []string{}
 	objectkeys := []string{}
 	for key, value := range node.m {
-		if _, ok := value.(Scalar); ok {
+		if _, ok := value.(*YamlScalar); ok {
 			if swid := len(key); swid > width {
 				width = swid
 			}
@@ -90,9 +90,9 @@ func (node *YamlMap) write(out io.Writer, firstind, nextind int) {
 	sort.Strings(objectkeys)
 
 	for _, key := range scalarkeys {
-		value := node.m[key].(Scalar)
+		value := node.m[key].(*YamlScalar)
 		out.Write(indent[:ind])
-		fmt.Fprintf(out, "%-*s %s\n", width+1, key+":", string(value))
+		fmt.Fprintf(out, "%-*s %s\n", width+1, key+":", value.String())
 		ind = nextind
 	}
 	for _, key := range objectkeys {
@@ -172,11 +172,45 @@ func (node *YamlList) write(out io.Writer, firstind, nextind int) {
 // A Scalar is a YAML Scalar.
 type Scalar string
 
-// String returns the string represented by this Scalar.
-func (node Scalar) String() string { return string(node) }
+// A YamlScalar is a wrapper of YAML Scalar which holds both definition and value
+type YamlScalar struct {
+	lineno int
+	line   string
+	scalar Scalar
+}
 
-func (node Scalar) write(out io.Writer, ind, _ int) {
-	fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", ind), string(node))
+// NewYamlScalar creates new map and return its pointer
+func NewYamlScalar(scalar string) *YamlScalar {
+	return &YamlScalar{
+		scalar: Scalar(scalar),
+	}
+}
+
+// LineNo returns line number of map definition
+func (node *YamlScalar) LineNo() int {
+	return node.lineno
+}
+
+// SetLineNo sets line number
+func (node *YamlScalar) SetLineNo(lineno int) {
+	node.lineno = lineno
+}
+
+// Line returns raw line written in yaml file
+func (node *YamlScalar) Line() string {
+	return node.line
+}
+
+// SetLine sets line
+func (node *YamlScalar) SetLine(line string) {
+	node.line = line
+}
+
+// String returns the string represented by this Scalar.
+func (node *YamlScalar) String() string { return string(node.scalar) }
+
+func (node *YamlScalar) write(out io.Writer, ind, _ int) {
+	fmt.Fprintf(out, "%s%s\n", strings.Repeat(" ", ind), node.String())
 }
 
 // Render returns a string of the node as a YAML document.  Note that

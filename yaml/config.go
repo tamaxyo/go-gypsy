@@ -90,7 +90,7 @@ func (f *File) Get(spec string) (string, error) {
 		}
 	}
 
-	scalar, ok := node.(Scalar)
+	scalar, ok := node.(*YamlScalar)
 	if !ok {
 		return "", &NodeTypeMismatch{
 			Full:     spec,

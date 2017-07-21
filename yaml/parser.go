@@ -176,14 +176,14 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 			// Add to current node
 			switch typ {
 			case typScalar: // last will be == nil
-				if _, ok := current.(Scalar); current != nil && !ok {
+				if _, ok := current.(*YamlScalar); current != nil && !ok {
 					panic("cannot append scalar to non-scalar node")
 				}
 				if current != nil {
-					current = Scalar(piece) + " " + current.(Scalar)
+					current = NewYamlScalar(piece + " " + current.(*YamlScalar).String())
 					break
 				}
-				current = Scalar(piece)
+				current = NewYamlScalar(piece)
 			case typMapping:
 				var mapNode *YamlMap
 				var ok bool
@@ -198,7 +198,7 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 					mapNode.SetLine(_line)
 				}
 
-				if _, inlineMap := prev.(Scalar); inlineMap && last > 0 {
+				if _, inlineMap := prev.(*YamlScalar); inlineMap && last > 0 {
 					current = &YamlMap{
 						m: Map{
 							piece: prev,
@@ -227,7 +227,7 @@ func parseNode(r lineReader, ind int, initial Node) (node Node) {
 					listNode.SetLine(_line)
 				}
 
-				if _, inlineList := prev.(Scalar); inlineList && last > 0 {
+				if _, inlineList := prev.(*YamlScalar); inlineList && last > 0 {
 					current = &YamlList{
 						list:   List{prev},
 						lineno: lineno,
